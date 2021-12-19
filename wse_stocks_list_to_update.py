@@ -24,7 +24,7 @@ class CheckInternalStockName:
 
     @staticmethod
     @time
-    def main():
+    def internal_name_scrapping():
         """ function scrapping data of tickers and internal url addresses of biznesradar.pl website """
 
         req = requests.get(CheckInternalStockName.URL)
@@ -48,4 +48,4 @@ class CheckInternalStockName:
 
 
 if __name__ == '__main__':
-    print(CheckInternalStockName().main())
+    print(CheckInternalStockName().internal_name_scrapping())

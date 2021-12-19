@@ -21,30 +21,30 @@ class ScrappingData:
         """ function gets internal stock name from dictionary with given dict key from user and downloads data for
         appropriate dict value """
 
-        internal_ticker = self.internal_names_database[self.user_tkinter_input]
+        self.internal_ticker = self.internal_names_database[str(self.user_tkinter_input)]
 
         self.urls_dict = dict(
-            rzis_web=[f"https://www.biznesradar.pl/raporty-finansowe-rachunek-zyskow-i-strat/{internal_ticker},Q",
-                      tuple(
+            rzis_web=[f"https://www.biznesradar.pl/raporty-finansowe-rachunek-zyskow-i-strat/{self.internal_ticker},Q",
+                      tuple([
                           'Przychody ze sprzedaży',
                           'Zysk ze sprzedaży',
                           'Zysk operacyjny (EBIT)',
                           'Zysk netto akcjonariuszy jednostki dominującej',
                           'EBITDA'
-                      )
+                      ])
                       ],
-            bilans_web=[f"https://www.biznesradar.pl/raporty-finansowe-bilans/{internal_ticker},Q,0",
-                        tuple(
+            bilans_web=[f"https://www.biznesradar.pl/raporty-finansowe-bilans/{self.internal_ticker},Q,0",
+                        tuple([
                             'Aktywa trwałe',
                             'Aktywa obrotowe',
                             'Kapitał własny akcjonariuszy jednostki dominującej',
                             'Zobowiązania długoterminowe',
                             'Zobowiązania krótkoterminowe',
                             'Wartość firmy'
-                        )
+                        ])
                         ],
-            cash_web=[f"https://www.biznesradar.pl/raporty-finansowe-przeplywy-pieniezne/{internal_ticker},Q",
-                      tuple(
+            cash_web=[f"https://www.biznesradar.pl/raporty-finansowe-przeplywy-pieniezne/{self.internal_ticker},Q",
+                      tuple([
                           'Przepływy pieniężne z działalności operacyjnej',
                           'Przepływy pieniężne z działalności inwestycyjnej',
                           'CAPEX (niematerialne i rzeczowe)',
@@ -52,10 +52,10 @@ class ScrappingData:
                           'Dywidenda',
                           'Skup akcji',
                           'Free Cash Flow'
-                      )
+                      ])
                       ],
-            rynkowej_web=[f"https://www.biznesradar.pl/wskazniki-wartosci-rynkowej/{internal_ticker}",
-                          tuple(
+            rynkowej_web=[f"https://www.biznesradar.pl/wskazniki-wartosci-rynkowej/{self.internal_ticker}",
+                          tuple([
                               'Kurs',
                               'Cena / Wartość księgowa',
                               'Cena / Przychody ze sprzedaży',
@@ -63,39 +63,39 @@ class ScrappingData:
                               'EV / Przychody ze sprzedaży',
                               'EV / EBIT',
                               'EV / EBITDA'
-                          )
+                          ])
                           ],
-            rentownosci_web=[f"https://www.biznesradar.pl/wskazniki-rentownosci/{internal_ticker}",
-                             tuple(
+            rentownosci_web=[f"https://www.biznesradar.pl/wskazniki-rentownosci/{self.internal_ticker}",
+                             tuple([
                                  'ROE',
                                  'ROA',
                                  'Marża zysku netto',
                                  'Marża zysku ze sprzedaży',
                                  'ROIC'
-                             )
+                             ])
                              ],
-            przeplywow_web=[f"https://www.biznesradar.pl/wskazniki-przeplywow-pienieznych/{internal_ticker}"],
-            zadluzenia_web=[f"https://www.biznesradar.pl/wskazniki-zadluzenia/{internal_ticker}",
-                            tuple(
+            zadluzenia_web=[f"https://www.biznesradar.pl/wskazniki-zadluzenia/{self.internal_ticker}",
+                            tuple([
                                 'Zadłużenie ogólne',
                                 'Zadłużenie kapitału własnego',
-                            )
+                            ])
                             ],
-            plynnosci_web=[f"https://www.biznesradar.pl/wskazniki-plynnosci/{internal_ticker}",
-                           tuple(
+            plynnosci_web=[f"https://www.biznesradar.pl/wskazniki-plynnosci/{self.internal_ticker}",
+                           tuple([
                                'Płynność bieżąca'
-                           )
+                           ])
                            ]
             # aktywnosci_web=[f"https://www.biznesradar.pl/wskazniki-aktywnosci/{internal_ticker}"],
             # ryzyko_web=[f"https://www.biznesradar.pl/analiza-portfelowa/{internal_ticker}"]
         )
 
+        # for k, v in self.urls_dict.items():
+        #     print(k, str(v[0]))
+        return self.urls_dict
+
     def main(self):
-
-        for k, v in self.urls_dict:
-
-            req = requests.get(v)
-
+        for k, v in self.get_financial_data().items():
+            req = requests.get(str(v[0]))
             soup = bs(req.content, features="lxml")
 
             table = soup.find_all('table', attrs={'class': 'report-table'})
@@ -106,7 +106,10 @@ class ScrappingData:
             df = df.rename(columns=df.iloc[0])
             df = df.fillna(method='backfill')
 
-            df = df.drop(df.tail(1).index, df.head(1).index)
+            df = df.drop(df.tail(1).index)
+            df = df.drop(df.head(1).index)
+
+            df = df[list(v[1])]
 
             for i in range(len(list(v[1]))):
                 df[v[1][i]] = df[v[1][i]].str.split('[rk~%]').str[0].str.replace(" ", '').astype(float)
@@ -119,5 +122,10 @@ class ScrappingData:
 
 
 if __name__ == '__main__':
-    ScrappingData(tkinter_input.Execute.tkinter_open_window(),
-                  wse_stocks_list_to_update.CheckInternalStockName().main()).main()
+    tkinter_input.Execute.tkinter_open_window()
+
+    output = ScrappingData(tkinter_input.Execute.input,
+                           wse_stocks_list_to_update.CheckInternalStockName().internal_name_scrapping()).main()
+
+    test = output['rentownosci_web']
+
