@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup as bs
 import re
+import time
+
 
 
 class CheckInternalStockName:
@@ -9,10 +11,19 @@ class CheckInternalStockName:
     def __int__(self):
         pass
 
+    def time(self):
+        def counter(*args):
+            start = time.time()
+            val = self(*args)
+            print(f"Execution time {self.__name__}: { time.time() - start}")
+            return val
+
+        return counter
 
 
 
     @staticmethod
+    @time
     def main():
         """ function scrapping data of tickers and internal url addresses of biznesradar.pl website """
 
@@ -37,5 +48,4 @@ class CheckInternalStockName:
 
 
 if __name__ == '__main__':
-
-    print(CheckInternalStockName.main())
+    print(CheckInternalStockName().main())
