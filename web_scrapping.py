@@ -120,4 +120,5 @@ class ScrappingData:
 
 
 if __name__ == '__main__':
-    ScrappingData(tkinter_input.Execute.tkinter_open_window(), wse_stocks_list_to_update.CheckInternalStockName().main()).main()
+    ScrappingData(tkinter_input.Execute.tkinter_open_window(),
+                  wse_stocks_list_to_update.CheckInternalStockName().main()).main()
