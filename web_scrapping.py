@@ -86,8 +86,8 @@ class ScrappingData:
                                'Płynność bieżąca'
                            )
                            ]
-            #aktywnosci_web=[f"https://www.biznesradar.pl/wskazniki-aktywnosci/{internal_ticker}"],
-            #ryzyko_web=[f"https://www.biznesradar.pl/analiza-portfelowa/{internal_ticker}"]
+            # aktywnosci_web=[f"https://www.biznesradar.pl/wskazniki-aktywnosci/{internal_ticker}"],
+            # ryzyko_web=[f"https://www.biznesradar.pl/analiza-portfelowa/{internal_ticker}"]
         )
 
     def main(self):
@@ -116,7 +116,6 @@ class ScrappingData:
             self.frames_dict[k] = df
 
         return self.frames_dict
-
 
 
 if __name__ == '__main__':
