@@ -37,10 +37,6 @@ class Execute:
         root.mainloop()
 
 
-if __name__ == '__main__':
-    Execute.tkinter_open_window()
-
-    print(f'User input: {Execute.input}')
 
 
 
