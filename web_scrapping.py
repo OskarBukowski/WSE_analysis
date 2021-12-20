@@ -124,8 +124,8 @@ class ScrappingData:
 if __name__ == '__main__':
     tkinter_input.Execute.tkinter_open_window()
 
-    output = ScrappingData(tkinter_input.Execute.input,
+    output = ScrappingData(tkinter_input.Execute.user_tkinter_input,
                            wse_stocks_list_to_update.CheckInternalStockName().internal_name_scrapping()).main()
 
-    test = output['rentownosci_web']
+    print(output['rentownosci_web'])
 
