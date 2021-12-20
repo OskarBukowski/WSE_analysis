@@ -7,121 +7,97 @@ import numpy as np
 gpw_ticker = "KPL"
 
 
-asset = web.DataReader("KPL.PL", 'stooq')
-print(asset)
+class Data:
 
-asset = asset.drop(columns = ['Open', 'High', 'Low'])
-asset['Delta'] = asset['Close'].pct_change()
-asset['Date'] = pd.to_datetime(asset.index)
-asset = asset.set_index('Date', drop=True)
+    SESSIONS = 252
+    RFR = 0.01/252
+    ALPHA = 1
 
 
+    def __init__(self, ticker_input):
+        self.ticker_input = tkinter_input.Execute.user_tkinter_input
 
-print(asset)
+    def market_data_from_stooq(self):
 
+        market_data = web.DataReader(f"{self.ticker_input}.PL", 'stooq')
+        market_data = market_data.drop(columns=['Open', 'High', 'Low'])
+        market_data['Delta'] = market_data['Close'].pct_change()
+        market_data['Date'] = pd.to_datetime(market_data.index)
+        market_data = market_data.set_index('Date', drop=True)
+        self.market_data = market_data
 
+        return market_data
 
+    def statistics(self):
 
-log_returns = np.log(asset.Close/asset.Close.shift(1)).fillna(method = 'backfill')
-annualized_std = round(log_returns.std() * np.sqrt(252),4)
-mean = round(log_returns.mean(), 4)
-skewness = round(log_returns.skew(), 4)
-kurtosis = round(log_returns.kurtosis(), 4)
-max_value = round(log_returns.max(), 4)
-min_value = round(log_returns.min(), 4)
+        self.log_returns = np.log(self.market_data.Close / self.market_data.Close.shift(1)).fillna(method='backfill')
 
-print('Statistics measures')
+        self.annualized_std = round(self.log_returns.std() * np.sqrt(252), 4)
+        self.mean = round(self.log_returns.mean(), 4)
+        self.skewness = round(self.log_returns.skew(), 4)
+        self.kurtosis = round(self.log_returns.kurtosis(), 4)
+        self.max_value = round(self.log_returns.max(), 4)
+        self.min_value = round(self.log_returns.min(), 4)
 
-print(log_returns)
-print(annualized_std)
-print(mean)
-print(skewness)
-print(kurtosis)
-print(max_value)
-print(min_value)
+    def financial_metrics_single(self):
 
+        self.trailing_volatility = self.log_returns.rolling(window=Data.SESSIONS).std() * np.sqrt(Data.SESSIONS)
 
+        self.mean_return = self.log_returns.rolling(window=Data.SESSIONS).mean()
+        self.sharpe_ratio = (self.mean_return - Data.RFR) * 252 / self.trailing_volatility
 
-
-
-days = 252
-trailing_volatility = log_returns.rolling(window = days).std() * np.sqrt(days)
-
-print("trailing volatility", trailing_volatility)
-
-
-rfr = 0.01 / 252  # daily risk free rate
-mean_return = log_returns.rolling(window = days).mean()
-
-print("mean_returns", mean_return)
+        sortino_vol = self.log_returns[self.log_returns < 0].rolling(window=Data.SESSIONS, center=True,
+                                                                     min_periods=5).std() * np.sqrt(Data.SESSIONS)
+        self.sortino_ratio = (self.mean_return - Data.RFR) * 252 / sortino_vol
 
 
-sharpe_ratio = (mean_return - rfr) * 252 / trailing_volatility
-sortino_vol = log_returns[log_returns<0].rolling(window = days, center = True, min_periods = 5).std()* np.sqrt(days)
-sortino_ratio = (mean_return - rfr) * 252 / sortino_vol
+    def financial_metrics_with_benchmark(self):
 
-bench = web.DataReader('WIG20.PL', 'stooq')
-bench = bench.drop(columns = ['Open', 'High', 'Low'])
+        benchmark_data = web.DataReader('WIG20.PL', 'stooq')
+        benchmark_data = benchmark_data.drop(columns=['Open', 'High', 'Low'])
 
-
-print("Financial metrics")
-
-print(sharpe_ratio)
-print(sortino_ratio)
-print(bench)
+        log_bench_returns = np.log(benchmark_data.Close / benchmark_data.Close.shift(1)).fillna(method='backfill')
+        benchmark_vol = log_bench_returns.rolling(window=Data.SESSIONS).std() * np.sqrt(Data.SESSIONS)
 
 
-
-log_bench_returns = np.log(bench.Close/bench.Close.shift(1)).fillna(method = 'backfill')
-benchmark_vol = log_bench_returns.rolling(window = days).std() * np.sqrt(days)
-m2_ratio = (sharpe_ratio*benchmark_vol/ days + rfr)* days
-
-print(" Measures 2")
-
-print(log_bench_returns)
-print(benchmark_vol)
-print(m2_ratio)
+        self.m2_ratio = (self.sharpe_ratio * benchmark_vol / Data.SESSIONS + Data.RFR) * Data.SESSIONS
+        self.returns = self.market_data.Close.pct_change().dropna()
 
 
+        def max_drawdown(self):
+            cumulative_returns = (1 + self.returns).cumprod()
+            peak = cumulative_returns.expanding(min_periods=1).max()
+            drawdown = (cumulative_returns / peak) - 1
 
-def max_drawdown(returns):
-    cumulative_returns = (1 + returns).cumprod()
-    peak = cumulative_returns.expanding(min_periods=1).max()
-    drawdown = (cumulative_returns / peak) - 1
-
-    return drawdown.min()
-
-
-returns = asset.Close.pct_change().dropna()
-
-drawdown = round((max_drawdown(returns) * 100), 4)
-
-calmar = round((np.exp(log_returns.mean() * 252) / abs(max_drawdown(returns))), 4)
+            return drawdown.min()
 
 
-def historicalVAR(log_returns, alpha=1):
-    if isinstance(log_returns, pd.Series):
-        return np.percentile(returns, alpha)
+        def historicalVAR(self):
+            if isinstance(self.log_returns, pd.Series):
+                return np.percentile(self.returns, Data.ALPHA)
 
-    elif isinstance(log_returns, pd.DataFrame):
-        return returns.aggregate(historicalVAR, alpha=1)
+            elif isinstance(self.log_returns, pd.DataFrame):
+                return self.returns.aggregate(historicalVAR, Data.ALPHA)
 
-    else:
-        raise TypeError('Expected returns to be dataframe or series')
-
-
-def historicalCVAR(returns, alpha=1):
-    if isinstance(returns, pd.Series):
-        belowVAR = returns <= historicalVAR(returns, alpha=1)
-        return returns[belowVAR].mean()
-
-    elif isinstance(returns, pd.DataFrame):
-        return returns.aggregate(historicalCVAR, alpha=1)
+            else:
+                raise TypeError('Expected returns to be dataframe or series')
 
 
-    else:
-        raise TypeError('Expected returns to be dataframe or series')
+        def historicalCVAR(self):
+            if isinstance(self.returns, pd.Series):
+                belowVAR = self.returns <= historicalVAR(self.returns, Data.ALPHA)
+                return self.returns[belowVAR].mean()
+
+            elif isinstance(self.returns, pd.DataFrame):
+                return self.returns.aggregate(historicalCVAR, Data.ALPHA)
+
+            else:
+                raise TypeError('Expected returns to be dataframe or series')
 
 
-hist_var = round((historicalVAR(log_returns, alpha=1)), 4)
-hist_cvar = round((historicalCVAR(log_returns, alpha=1)), 4)
+        drawdown = round((max_drawdown(self.returns) * 100), 4)
+
+        calmar = round((np.exp(self.log_returns.mean() * 252) / abs(max_drawdown(self.returns))), 4)
+
+        hist_var = round((historicalVAR(self.log_returns, Data.ALPHA)), 4)
+        hist_cvar = round((historicalCVAR(self.log_returns, Data.ALPHA)), 4)
