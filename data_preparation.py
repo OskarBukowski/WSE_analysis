@@ -16,21 +16,21 @@ class Data:
 
     def __init__(self, ticker_input):
         self.ticker_input = tkinter_input.Execute.user_tkinter_input
+        self.market_data = None
 
     def market_data_from_stooq(self):
 
-        market_data = web.DataReader(f"{self.ticker_input}.PL", 'stooq')
-        market_data = market_data.drop(columns=['Open', 'High', 'Low'])
-        market_data['Delta'] = market_data['Close'].pct_change()
-        market_data['Date'] = pd.to_datetime(market_data.index)
-        market_data = market_data.set_index('Date', drop=True)
-        self.market_data = market_data
+        self.market_data = web.DataReader(f"{self.ticker_input}.PL", 'stooq')
+        self.market_data = self.market_data.drop(columns=['Open', 'High', 'Low'])
+        self.market_data['Delta'] = self.market_data['Close'].pct_change()
+        self.market_data['Date'] = pd.to_datetime(self.market_data.index)
+        self.market_data = self.market_data.set_index('Date', drop=True)
 
-        return market_data
+
 
     def statistics(self):
 
-        self.log_returns = np.log(self.market_data.Close / self.market_data.Close.shift(1)).fillna(method='backfill')
+        self.log_returns = np.log(self.market_data_from_stooq().market_data / self.market_data_from_stooq().market_data.shift(1)).fillna(method='backfill')
 
         self.annualized_std = round(self.log_returns.std() * np.sqrt(252), 4)
         self.mean = round(self.log_returns.mean(), 4)
@@ -41,14 +41,16 @@ class Data:
 
     def financial_metrics_single(self):
 
-        self.trailing_volatility = self.log_returns.rolling(window=Data.SESSIONS).std() * np.sqrt(Data.SESSIONS)
+        self.trailing_volatility = self.statistics().log_returns.rolling(window=Data.SESSIONS).std() * np.sqrt(Data.SESSIONS)
 
-        self.mean_return = self.log_returns.rolling(window=Data.SESSIONS).mean()
+        self.mean_return = self.statistics().log_returns.rolling(window=Data.SESSIONS).mean()
         self.sharpe_ratio = (self.mean_return - Data.RFR) * 252 / self.trailing_volatility
 
-        sortino_vol = self.log_returns[self.log_returns < 0].rolling(window=Data.SESSIONS, center=True,
+        sortino_vol = self.statistics().log_returns[self.log_returns < 0].rolling(window=Data.SESSIONS, center=True,
                                                                      min_periods=5).std() * np.sqrt(Data.SESSIONS)
         self.sortino_ratio = (self.mean_return - Data.RFR) * 252 / sortino_vol
+
+        return self.trailing_volatility, self.mean_return, self.sharpe_ratio, self.sortino_ratio
 
 
     def financial_metrics_with_benchmark(self):
@@ -64,12 +66,15 @@ class Data:
         self.returns = self.market_data.Close.pct_change().dropna()
 
 
+
         def max_drawdown(self):
             cumulative_returns = (1 + self.returns).cumprod()
             peak = cumulative_returns.expanding(min_periods=1).max()
             drawdown = (cumulative_returns / peak) - 1
 
             return drawdown.min()
+
+        return self.m2_ratio, self.returns
 
 
         def historicalVAR(self):
