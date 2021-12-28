@@ -89,8 +89,6 @@ class ScrappingData:
             # ryzyko_web=[f"https://www.biznesradar.pl/analiza-portfelowa/{internal_ticker}"]
         )
 
-        # for k, v in self.urls_dict.items():
-        #     print(k, str(v[0]))
         return self.urls_dict
 
     def main(self):

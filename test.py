@@ -12,61 +12,78 @@ import wse_stocks_list_to_update
 
 tkinter_input.Execute.tkinter_open_window()
 
+
 # Altman EM-Score   --------------------------
 
-bilans = web_scrapping.ScrappingData(tkinter_input.Execute.user_tkinter_input,
-                                     wse_stocks_list_to_update.CheckInternalStockName().
-                                     internal_name_scrapping()).main()['bilans_web']
+class Path:
+    def __init__(self):
+        self.fin_source = None
 
-rzis = web_scrapping.ScrappingData(tkinter_input.Execute.user_tkinter_input,
-                                   wse_stocks_list_to_update.CheckInternalStockName().
-                                   internal_name_scrapping()).main()['rzis_web']
+    @staticmethod
+    def connection(fin_data):
+        frame = web_scrapping.ScrappingData(tkinter_input.Execute.user_tkinter_input,
+                                            wse_stocks_list_to_update.CheckInternalStockName().
+                                            internal_name_scrapping()).main()[fin_data]
 
-cash = web_scrapping.ScrappingData(tkinter_input.Execute.user_tkinter_input,
-                                   wse_stocks_list_to_update.CheckInternalStockName().
-                                   internal_name_scrapping()).main()['cash_web']
+        return frame
 
-rynkowej = web_scrapping.ScrappingData(tkinter_input.Execute.user_tkinter_input,
-                                       wse_stocks_list_to_update.CheckInternalStockName().
-                                       internal_name_scrapping()).main()['rynkowej_web']
+    def source(self):
+        fin_source = dict(
+            bilans=self.connection('bilans_web'),
+            rzis=self.connection('rzis_web'),
+            cash=self.connection('cash_web'),
+            rynkowej=self.connection('rynkowej_web'),
+            rentownosci=self.connection('rentownosci_web'),
+            zadluzenia=self.connection('zadluzenia_web'),
+            plynnosci=self.connection('plynnosci_web')
+        )
 
-rentownosci = web_scrapping.ScrappingData(tkinter_input.Execute.user_tkinter_input,
-                                          wse_stocks_list_to_update.CheckInternalStockName().
-                                          internal_name_scrapping()).main()['rentownosci_web']
+        return fin_source
 
-zadluzenia = web_scrapping.ScrappingData(tkinter_input.Execute.user_tkinter_input,
-                                         wse_stocks_list_to_update.CheckInternalStockName().
-                                         internal_name_scrapping()).main()['zadluzenia_web']
 
-plynnosci = web_scrapping.ScrappingData(tkinter_input.Execute.user_tkinter_input,
-                                        wse_stocks_list_to_update.CheckInternalStockName().
-                                        internal_name_scrapping()).main()['plynnosci_web']
-#
-altman = pd.DataFrame()
 
-altman['one'] = 6.65 * ((bilans['Aktywa obrotowe'] - bilans['Zobowiązania krótkoterminowe']) /
-                        (bilans['Aktywa trwałe'] + bilans['Aktywa obrotowe']))
 
-altman['two'] = 3.26 * ((rzis['Zysk netto akcjonariuszy jednostki dominującej'] - cash['Dywidenda']) /
-                        (bilans['Aktywa trwałe'] + bilans['Aktywa obrotowe']))
+class Altman:
+    def __init__(self):
+        self.altman = pd.DataFrame()
 
-altman['three'] = 6.72 * (rzis['Zysk operacyjny (EBIT)'] / (bilans['Aktywa trwałe'] + bilans['Aktywa obrotowe']))
+    def altman_calculation(self):
+        altman_calc = Path().source()
 
-altman['four'] = 1.05 * (bilans['Kapitał własny akcjonariuszy jednostki dominującej'] /
-                         (bilans['Zobowiązania krótkoterminowe'] + bilans['Zobowiązania długoterminowe']))
+        self.altman['one'] = 6.65 * ((altman_calc['bilans']['Aktywa obrotowe'] -
+                                      altman_calc['bilans']['Zobowiązania krótkoterminowe']) /
+                                     (altman_calc['bilans']['Aktywa trwałe'] +
+                                      altman_calc['bilans']['Aktywa obrotowe']))
 
-altman = altman.fillna(method='backfill')
+        self.altman['two'] = 3.26 * ((altman_calc['rzis']['Zysk netto akcjonariuszy jednostki dominującej'] -
+                                      altman_calc['cash']['Dywidenda']) /
+                                     (altman_calc['bilans']['Aktywa trwałe'] +
+                                      altman_calc['bilans']['Aktywa obrotowe']))
 
-altman['em_score'] = altman['one'] + altman['two'] + altman['three'] + altman['four'] + 3.25
+        self.altman['three'] = 6.72 * (altman_calc['rzis']['Zysk operacyjny (EBIT)'] /
+                                       (altman_calc['bilans']['Aktywa trwałe'] +
+                                        altman_calc['bilans']['Aktywa obrotowe']))
 
-xticks_alt = altman.index[::4]
+        self.altman['four'] = 1.05 * (altman_calc['bilans']['Kapitał własny akcjonariuszy jednostki dominującej'] /
+                                      (altman_calc['bilans']['Zobowiązania krótkoterminowe'] +
+                                       altman_calc['bilans']['Zobowiązania długoterminowe']))
+
+        self.altman = self.altman.fillna(method='backfill')
+
+        self.altman['em_score'] = self.altman['one'] + self.altman['two'] + self.altman['three'] + self.altman[
+            'four'] + 3.25
+
+        return self.altman
+
+
+xticks_alt = Altman().altman_calculation().index[::4]
 
 plt.style.use('dark_background')
 plt.get_cmap('twilight')
 
 plt.figure(figsize=(18, 8))
 plt.title('ALTMAN EM-SCORE', fontsize=20)
-plt.plot(altman['em_score'], color='r', linestyle='-', linewidth=3)
+plt.plot(Altman().altman_calculation()['em_score'], color='r', linestyle='-', linewidth=3)
 plt.grid(axis='x', alpha=0.5)
 plt.xticks(xticks_alt, fontsize=13)
 plt.yticks(fontsize=14)
@@ -78,7 +95,7 @@ plt.savefig('plots/altman_2.JPG')
 
 # Zadłużenie ogółem  |   Zadłużenie kapitału własnego   ------------------
 
-xticks_zad = zadluzenia.index[::4]
+xticks_zad = Path().source()['zadluzenia'].index[::4]
 yticks = np.arange(0.0, 2.5, 0.25)
 
 plt.style.use('dark_background')
@@ -86,9 +103,9 @@ plt.get_cmap('twilight')
 
 plt.figure(figsize=(22, 8))
 plt.title('WSKAŹNIKI ZADŁUŻENIA', fontsize=20)
-plt.plot(zadluzenia['Zadłużenie kapitału własnego'], color='r', linestyle='-', linewidth=3,
+plt.plot(Path().source()['zadluzenia']['Zadłużenie kapitału własnego'], color='r', linestyle='-', linewidth=3,
          label='Zadłużenie kapitału własnego')
-plt.plot(zadluzenia['Zadłużenie ogólne'], color='C2', linestyle='-', linewidth=3, label='Zadłużenie ogólne')
+plt.plot(Path().source()['zadluzenia']['Zadłużenie ogólne'], color='C2', linestyle='-', linewidth=3, label='Zadłużenie ogólne')
 plt.grid(axis='y', alpha=0.5)
 plt.xticks(xticks_zad, fontsize=13)
 plt.yticks(yticks, fontsize=14)
@@ -102,14 +119,14 @@ plt.savefig('plots/zadluzenia.JPG')
 # Wskaźnik bieżącej płynnosci   -------------------------------------------
 
 
-xticks_pln = plynnosci.index[::4]
+xticks_pln = Path().source()['plynnosci'].index[::4]
 
 plt.style.use('dark_background')
 plt.get_cmap('twilight')
 
 plt.figure(figsize=(18, 8))
 plt.title('WSKAŹNIK PŁYNNOŚCI BIEŻĄCEJ', fontsize=20)
-plt.plot(plynnosci['Płynność bieżąca'], color='c', linestyle='-', linewidth=3)
+plt.plot(Path().source()['plynnosci']['Płynność bieżąca'], color='c', linestyle='-', linewidth=3)
 plt.grid(axis='y', alpha=0.5)
 plt.xticks(xticks_pln, fontsize=13)
 plt.yticks(fontsize=14)
@@ -119,19 +136,17 @@ plt.gca().spines['right'].set_visible(False)
 plt.show()
 plt.savefig('plots/plynnosci.JPG')
 
-
-
 # EV/EBITDA,REVENUE  |  Cena akcji -------------------------------------------
 
-xticks_ev = rynkowej.index[::4]
+xticks_ev = Path().source()['rynkowej'].index[::4]
 
 plt.style.use('dark_background')
 plt.get_cmap('twilight')
 
 plt.figure(figsize=(18, 8))
 plt.title('WSKAŹNIKI WYCENY PRZEDSIĘBIORSTWA', fontsize=20)
-plt.plot(rynkowej['EV / EBITDA'], color='c', linestyle='-', linewidth=3, label='EV/EBITDA')
-plt.plot(rynkowej['EV / Przychody ze sprzedaży'], color='r', linestyle='-', linewidth=3, label='EV/REVENUE')
+plt.plot(Path().source()['rynkowej']['EV / EBITDA'], color='c', linestyle='-', linewidth=3, label='EV/EBITDA')
+plt.plot(Path().source()['rynkowej']['EV / Przychody ze sprzedaży'], color='r', linestyle='-', linewidth=3, label='EV/REVENUE')
 plt.grid(axis='y', alpha=0.5)
 
 plt.xticks(xticks_ev, fontsize=12)
@@ -143,12 +158,10 @@ plt.gca().spines['right'].set_visible(False)
 plt.show()
 plt.savefig('plots/rynkowej.JPG')
 
-
-
 # ROE, ROA, ROS, ROIC, Marża zysku ze sprzedaży   -------------------------
 
 
-xticks_rent = rentownosci.index[::4]
+xticks_rent = Path().source()['rentownosci'].index[::4]
 
 # 1
 
@@ -158,9 +171,9 @@ plt.get_cmap('twilight')
 
 plt.figure(figsize=(18, 8))
 plt.title('WSKAŹNIKI RENTOWNOŚCI', fontsize=20)
-plt.plot(rentownosci['ROE'], color='c', linestyle='-', linewidth=3, label='ROE')
-plt.plot(rentownosci['ROA'], color='r', linestyle='-', linewidth=3, label='ROA')
-plt.plot(rentownosci['ROIC'], color='m', linestyle='-', linewidth=3, label='ROIC')
+plt.plot(Path().source()['rentownosci']['ROE'], color='c', linestyle='-', linewidth=3, label='ROE')
+plt.plot(Path().source()['rentownosci']['ROA'], color='r', linestyle='-', linewidth=3, label='ROA')
+plt.plot(Path().source()['rentownosci']['ROIC'], color='m', linestyle='-', linewidth=3, label='ROIC')
 plt.grid(axis='y', alpha=0.5)
 
 plt.xticks(xticks_rent, fontsize=12)
@@ -180,7 +193,7 @@ plt.get_cmap('twilight')
 
 plt.figure(figsize=(18, 8))
 plt.title('MARŻA ZYSKU ZA SPRZEDAŻY', fontsize=20)
-plt.plot(rentownosci['Marża zysku ze sprzedaży'], color='c', linestyle='-', linewidth=3,
+plt.plot(Path().source()['rentownosci']['Marża zysku ze sprzedaży'], color='c', linestyle='-', linewidth=3,
          label='Marża zysku ze sprzedaży')
 plt.grid(axis='y', alpha=0.5)
 
@@ -195,7 +208,7 @@ plt.savefig('plots/marza.JPG')
 
 # P/E,BV,REVENUE    |  Cena akcji ------------------------------------------
 
-xticks_ryn = rynkowej.index[::4]
+xticks_ryn = Path().source()['rynkowej'].index[::4]
 
 plt.style.use('dark_background')
 plt.get_cmap('twilight')
@@ -203,9 +216,9 @@ plt.get_cmap('twilight')
 plt.figure(figsize=(18, 8))
 
 plt.title('WSKAŹNIKI WARTOŚCI RYNKOWEJ', fontsize=20)
-plt.plot(rynkowej['Cena / Zysk'], color='r', linestyle='-', linewidth=3, label='P/E')
-plt.plot(rynkowej['Cena / Wartość księgowa'], color='C2', linestyle='-', linewidth=3, label='P/BV')
-plt.plot(rynkowej['Cena / Przychody ze sprzedaży'], color='c', linestyle='-', linewidth=3, label='P/REVENUE')
+plt.plot(Path().source()['rynkowej']['Cena / Zysk'], color='r', linestyle='-', linewidth=3, label='P/E')
+plt.plot(Path().source()['rynkowej']['Cena / Wartość księgowa'], color='C2', linestyle='-', linewidth=3, label='P/BV')
+plt.plot(Path().source()['rynkowej']['Cena / Przychody ze sprzedaży'], color='c', linestyle='-', linewidth=3, label='P/REVENUE')
 plt.grid(axis='y', alpha=0.5)
 
 plt.xticks(xticks_ryn, fontsize=12)
@@ -219,7 +232,7 @@ plt.savefig('plots/akcji_rynkowej.JPG')
 
 # Zysk ze sprzedaży  |  EBIT -------------------------------------------
 
-xticks_rzis = rzis.index[::4]
+xticks_rzis = Path().source()['rzis'].index[::4]
 
 plt.style.use('dark_background')
 plt.get_cmap('twilight')
@@ -227,8 +240,8 @@ plt.get_cmap('twilight')
 plt.figure(figsize=(18, 8))
 
 plt.title('WYNIKI SPRZEDAŻY', fontsize=20)
-plt.plot(rzis['Zysk ze sprzedaży'], color='r', linestyle='-', linewidth=3, label='Zysk ze sprzedaży')
-plt.plot(rzis['Zysk operacyjny (EBIT)'], color='C2', linestyle='-', linewidth=3, label='EBIT')
+plt.plot(Path().source()['rzis']['Zysk ze sprzedaży'], color='r', linestyle='-', linewidth=3, label='Zysk ze sprzedaży')
+plt.plot(Path().source()['rzis']['Zysk operacyjny (EBIT)'], color='C2', linestyle='-', linewidth=3, label='EBIT')
 plt.grid(axis='y', alpha=0.5)
 
 plt.xticks(xticks_rzis, fontsize=12)
@@ -244,8 +257,8 @@ plt.savefig('plots/zyskownosci.JPG')
 
 porownanie = pd.DataFrame()
 
-porownanie['Kurs'] = rynkowej['Kurs']
-porownanie['Przychody ze sprzedaży'] = rzis['Przychody ze sprzedaży']
+porownanie['Kurs'] = Path().source()['rynkowej']['Kurs']
+porownanie['Przychody ze sprzedaży'] = Path().source()['rzis']['Przychody ze sprzedaży']
 
 porownanie = porownanie.loc[
     porownanie['Kurs'] > 0.0]  # usuwam okresy początkowe zaburzające dane w czasie gdy akcje nie były w obiegu
@@ -328,7 +341,8 @@ plt.get_cmap('twilight')
 plt.figure(figsize=(18, 8))
 
 plt.title('VOLATILITY', fontsize=20)
-plt.plot(data_preparation.Data(tkinter_input.Execute.user_tkinter_input).financial_metrics_single()[0], color='r', linestyle='-', linewidth=3, label='Rolliing volatility')
+plt.plot(data_preparation.Data(tkinter_input.Execute.user_tkinter_input).financial_metrics_single()[0], color='r',
+         linestyle='-', linewidth=3, label='Rolliing volatility')
 plt.grid(axis='y', alpha=0.5)
 
 plt.xticks(fontsize=14)
