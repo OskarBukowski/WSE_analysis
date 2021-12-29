@@ -5,6 +5,8 @@ from PIL import ImageTk, Image
 
 
 class Execute:
+    user_tkinter_input = None
+
     def __init__(self):
         pass
 

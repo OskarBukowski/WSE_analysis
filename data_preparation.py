@@ -75,9 +75,9 @@ class Data:
     def max_drawdown(self):
         cumulative_returns = (1 + self.returns).cumprod()
         peak = cumulative_returns.expanding(min_periods=1).max()
-        drawdown = (cumulative_returns / peak) - 1
+        self.drawdown = (cumulative_returns / peak) - 1
 
-        return drawdown.min()
+        return self.drawdown.min()
 
 
 
@@ -107,12 +107,14 @@ class Data:
 
 
 
-
-drawdown = round((Data.max_drawdown(Data.financial_metrics_with_benchmark()[1]) * 100), 4)
-
-calmar = round((np.exp(Data.statistics()[0].mean() * 252) /
-                abs(Data.max_drawdown(Data.financial_metrics_with_benchmark()[1]))), 4)
-
-hist_var = round((Data.historicalVAR(Data.statistics()[0], Data.ALPHA)), 4)
-
-hist_cvar = round((Data.historicalCVAR(Data.statistics()[0], Data.ALPHA)), 4)
+#
+# drawdown = round((Data.max_drawdown(Data(tkinter_input.Execute.user_tkinter_input).financial_metrics_with_benchmark()[1]) * 100), 4)
+#
+# calmar = round((np.exp(Data(tkinter_input.Execute.user_tkinter_input).statistics()[0].mean() * 252) /
+#                 abs(Data.max_drawdown(Data.financial_metrics_with_benchmark()[1]))), 4)
+#
+# hist_var = round((Data(tkinter_input.Execute.user_tkinter_input).historicalVAR
+#                   (Data(tkinter_input.Execute.user_tkinter_input).statistics()[0], Data(tkinter_input.Execute.user_tkinter_input).ALPHA)), 4)
+#
+# hist_cvar = round((Data(tkinter_input.Execute.user_tkinter_input).historicalCVAR
+#                    (Data(tkinter_input.Execute.user_tkinter_input).statistics()[0], Data(tkinter_input.Execute.user_tkinter_input).ALPHA)), 4)

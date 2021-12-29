@@ -119,11 +119,11 @@ class ScrappingData:
         return self.frames_dict
 
 
-if __name__ == '__main__':
-    tkinter_input.Execute.tkinter_open_window()
-
-    output = ScrappingData(tkinter_input.Execute.user_tkinter_input,
-                           wse_stocks_list_to_update.CheckInternalStockName().internal_name_scrapping()).main()
-
-    print(output['rentownosci_web'])
+# if __name__ == '__main__':
+#     tkinter_input.Execute.tkinter_open_window()
+#
+#     output = ScrappingData(tkinter_input.Execute.user_tkinter_input,
+#                            wse_stocks_list_to_update.CheckInternalStockName().check_ticker()).main()
+#
+#     print(output['rentownosci_web'])
 

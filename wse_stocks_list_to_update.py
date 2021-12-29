@@ -47,5 +47,5 @@ class CheckInternalStockName:
         return biznesradar_internal_names
 
 
-if __name__ == '__main__':
-    print(CheckInternalStockName().internal_name_scrapping())
+# if __name__ == '__main__':
+#     print(CheckInternalStockName().internal_name_scrapping())
