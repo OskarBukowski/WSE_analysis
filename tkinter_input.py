@@ -5,6 +5,8 @@ from PIL import ImageTk, Image
 
 
 class Execute:
+    user_tkinter_input = None
+
     def __init__(self):
         pass
 
@@ -29,6 +31,7 @@ class Execute:
 
     @staticmethod
     @user_action_follower
+    @time
     def tkinter_open_window():
         root = Tk()
         root.title('Stock name input')

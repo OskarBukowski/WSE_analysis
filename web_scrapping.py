@@ -11,9 +11,9 @@ warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning)
 
 class ScrappingData:
 
-    def __init__(self, user_tkinter_input, internal_names_database):
+    def __init__(self, user_tkinter_input):
         self.user_tkinter_input = user_tkinter_input
-        self.internal_names_database = internal_names_database
+        self.internal_names_database = wse_stocks_list_to_update.CheckInternalStockName().internal_name_scrapping()
         self.urls_dict = dict()
         self.frames_dict = dict()
 
@@ -122,8 +122,7 @@ class ScrappingData:
 if __name__ == '__main__':
     tkinter_input.Execute.tkinter_open_window()
 
-    output = ScrappingData(tkinter_input.Execute.user_tkinter_input,
-                           wse_stocks_list_to_update.CheckInternalStockName().internal_name_scrapping()).main()
+    output = ScrappingData(tkinter_input.Execute.user_tkinter_input).main()
 
     print(output['rentownosci_web'])
 
