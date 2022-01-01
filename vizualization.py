@@ -2,15 +2,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from PIL import Image
-import pandas_datareader.data as web
 import data_preparation
 import web_scrapping
 import tkinter_input
-import wse_stocks_list_to_update
-
-
-# tkinter_input.Execute.tkinter_open_window()
-
 
 
 class Path:
@@ -35,8 +29,6 @@ class Path:
         )
 
         return fin_source
-
-
 
 
 class Altman:
@@ -72,7 +64,7 @@ class Altman:
         return self.altman
 
 
-def plot_altman(data, title):
+def plot_altman(data, title, file_name):
     xticks_alt = data.index[::4]
 
     plt.style.use('dark_background')
@@ -87,16 +79,15 @@ def plot_altman(data, title):
 
     plt.gca().spines['top'].set_visible(False)
     plt.gca().spines['right'].set_visible(False)
-    plt.show()
 
-    return plt.savefig('plots/altman_2.JPG')
+    plt.savefig(f'plots/{file_name}')
 
 
-plot_altman(Altman().altman_calculation(), 'ALTMAN EM SCORE')
+# plot_altman(Altman().altman_calculation(), 'ALTMAN EM SCORE', 'altman_2.JPG')
 
 
 def zadluzenia_plot(data, title, file_name):
-    xticks_zad = data['zadluzenia'].index[::4]
+    xticks_zad = data.index[::4]
     yticks = np.arange(0.0, 2.5, 0.25)
 
     plt.style.use('dark_background')
@@ -104,9 +95,9 @@ def zadluzenia_plot(data, title, file_name):
 
     plt.figure(figsize=(22, 8))
     plt.title(title, fontsize=20)
-    plt.plot(data['zadluzenia']['Zadłużenie kapitału własnego'], color='r', linestyle='-', linewidth=3,
+    plt.plot(data['Zadłużenie kapitału własnego'], color='r', linestyle='-', linewidth=3,
              label='Zadłużenie kapitału własnego')
-    plt.plot(data['zadluzenia']['Zadłużenie ogólne'], color='C2', linestyle='-', linewidth=3,
+    plt.plot(data['Zadłużenie ogólne'], color='C2', linestyle='-', linewidth=3,
              label='Zadłużenie ogólne')
     plt.grid(axis='y', alpha=0.5)
     plt.xticks(xticks_zad, fontsize=13)
@@ -115,17 +106,15 @@ def zadluzenia_plot(data, title, file_name):
 
     plt.gca().spines['top'].set_visible(False)
     plt.gca().spines['right'].set_visible(False)
-    plt.show()
+
     plt.savefig(f"plots/{file_name}")
 
 
-zadluzenia_plot(Path().source(), 'WSKAŹNIKI ZADŁUŻENIA', 'zadluzenia.JPG')
-
+# zadluzenia_plot(Path().source()['zadluzenia'], 'WSKAŹNIKI ZADŁUŻENIA', 'zadluzenia.JPG')
 
 
 def plynnosci_plot(data, title, file_name):
-
-    xticks_pln = data['plynnosci'].index[::4]
+    xticks_pln = data.index[::4]
 
     plt.style.use('dark_background')
     plt.get_cmap('twilight')
@@ -133,10 +122,7 @@ def plynnosci_plot(data, title, file_name):
     plt.figure(figsize=(18, 8))
     plt.title(title, fontsize=20)
 
-    plt.plot(data['plynnosci']['Płynność bieżąca'], color='c', linestyle='-', linewidth=3,
-             label='Płynność bieżąca')
-
-    plt.plot(data['plynnosci']['Płynność bieżąca'], color='c', linestyle='-', linewidth=3)
+    plt.plot(data['Płynność bieżąca'], color='c', linestyle='-', linewidth=3, label='Płynność bieżąca')
 
     plt.grid(axis='y', alpha=0.5)
     plt.xticks(xticks_pln, fontsize=13)
@@ -144,25 +130,24 @@ def plynnosci_plot(data, title, file_name):
 
     plt.gca().spines['top'].set_visible(False)
     plt.gca().spines['right'].set_visible(False)
-    plt.show()
 
-    return plt.savefig(f'plots/{file_name}')
+    plt.savefig(f'plots/{file_name}')
 
-
-plynnosci_plot(Path().source(), 'WSKAŹNIK PŁYNNOŚCI BIEŻĄCEJ', 'plynnosci.JPG')
+#
+# plynnosci_plot(Path().source()['plynnosci'], 'WSKAŹNIK PŁYNNOŚCI BIEŻĄCEJ', 'plynnosci.JPG')
 
 
 def rynkowej_plot(data, title, file_name):
-    xticks_ev = data['rynkowej'].index[::4]
+    xticks_ev = data.index[::4]
 
     plt.style.use('dark_background')
     plt.get_cmap('twilight')
 
     plt.figure(figsize=(18, 8))
     plt.title(title, fontsize=20)
-    plt.plot(data['rynkowej']['EV / EBITDA'], color='c', linestyle='-',
+    plt.plot(data['EV / EBITDA'], color='c', linestyle='-',
              linewidth=3, label='EV/EBITDA')
-    plt.plot(data['rynkowej']['EV / Przychody ze sprzedaży'], color='r', linestyle='-',
+    plt.plot(data['EV / Przychody ze sprzedaży'], color='r', linestyle='-',
              linewidth=3, label='EV/REVENUE')
 
     plt.grid(axis='y', alpha=0.5)
@@ -173,25 +158,24 @@ def rynkowej_plot(data, title, file_name):
 
     plt.gca().spines['top'].set_visible(False)
     plt.gca().spines['right'].set_visible(False)
-    plt.show()
 
-    return plt.savefig(f'plots/{file_name}')
+    plt.savefig(f'plots/{file_name}')
 
-
-rynkowej_plot(Path().source(), 'WSKAŹNIKI WYCENY PRZEDSIĘBIORSTWA', 'rynkowej.JPG')
+#
+# rynkowej_plot(Path().source()['rynkowej'], 'WSKAŹNIKI WYCENY PRZEDSIĘBIORSTWA', 'rynkowej.JPG')
 
 
 def rentownosci_plot(data, title, file_name):
-    xticks_rent = data['rentownosci'].index[::4]
+    xticks_rent = data.index[::4]
 
     plt.style.use('dark_background')
     plt.get_cmap('twilight')
 
     plt.figure(figsize=(18, 8))
     plt.title(title, fontsize=20)
-    plt.plot(data['rentownosci']['ROE'], color='c', linestyle='-', linewidth=3, label='ROE')
-    plt.plot(data['rentownosci']['ROA'], color='r', linestyle='-', linewidth=3, label='ROA')
-    plt.plot(data['rentownosci']['ROIC'], color='m', linestyle='-', linewidth=3, label='ROIC')
+    plt.plot(data['ROE'], color='c', linestyle='-', linewidth=3, label='ROE')
+    plt.plot(data['ROA'], color='r', linestyle='-', linewidth=3, label='ROA')
+    plt.plot(data['ROIC'], color='m', linestyle='-', linewidth=3, label='ROIC')
     plt.grid(axis='y', alpha=0.5)
 
     plt.xticks(xticks_rent, fontsize=12)
@@ -202,21 +186,20 @@ def rentownosci_plot(data, title, file_name):
     plt.gca().spines['right'].set_visible(False)
     plt.show()
 
-    return plt.savefig(f'plots/{file_name}')
+    plt.savefig(f'plots/{file_name}')
 
 
-rentownosci_plot(Path().source(), 'WSKAŹNIKI RENTOWNOŚCI', 'rentownosci.JPG')
-
+# rentownosci_plot(Path().source()['rentownosci'], 'WSKAŹNIKI RENTOWNOŚCI', 'rentownosci.JPG')
 
 
 def marza_plot(data, title, file_name):
-    xticks_rent = data['rentownosci'].index[::4]
+    xticks_rent = data.index[::4]
     plt.style.use('dark_background')
     plt.get_cmap('twilight')
 
     plt.figure(figsize=(18, 8))
     plt.title(title, fontsize=20)
-    plt.plot(data['rentownosci']['Marża zysku ze sprzedaży'], color='c', linestyle='-', linewidth=3,
+    plt.plot(data['Marża zysku ze sprzedaży'], color='c', linestyle='-', linewidth=3,
              label='Marża zysku ze sprzedaży')
     plt.grid(axis='y', alpha=0.5)
 
@@ -228,17 +211,14 @@ def marza_plot(data, title, file_name):
     plt.gca().spines['right'].set_visible(False)
     plt.show()
 
-    return plt.savefig(f'plots/{file_name}')
+    plt.savefig(f'plots/{file_name}')
 
 
-marza_plot(Path().source(), 'MARŻA ZYSKU ZA SPRZEDAŻY', 'marza.JPG')
-
-
-
+# marza_plot(Path().source()['rentownosci'], 'MARŻA ZYSKU ZA SPRZEDAŻY', 'marza.JPG')
 
 
 def rynkowej2_plot(data, title, file_name):
-    xticks_ryn = data['rynkowej'].index[::4]
+    xticks_ryn = data.index[::4]
 
     plt.style.use('dark_background')
     plt.get_cmap('twilight')
@@ -246,11 +226,9 @@ def rynkowej2_plot(data, title, file_name):
     plt.figure(figsize=(18, 8))
 
     plt.title(title, fontsize=20)
-    plt.plot(data['rynkowej']['Cena / Zysk'], color='r', linestyle='-', linewidth=3, label='P/E')
-    plt.plot(data['rynkowej']['Cena / Wartość księgowa'], color='C2', linestyle='-',
-             linewidth=3, label='P/BV')
-    plt.plot(data['rynkowej']['Cena / Przychody ze sprzedaży'], color='c', linestyle='-',
-             linewidth=3, label='P/REVENUE')
+    plt.plot(data['Cena / Zysk'], color='r', linestyle='-', linewidth=3, label='P/E')
+    plt.plot(data['Cena / Wartość księgowa'], color='C2', linestyle='-', linewidth=3, label='P/BV')
+    plt.plot(data['Cena / Przychody ze sprzedaży'], color='c', linestyle='-', linewidth=3, label='P/REVENUE')
     plt.grid(axis='y', alpha=0.5)
 
     plt.xticks(xticks_ryn, fontsize=12)
@@ -261,16 +239,14 @@ def rynkowej2_plot(data, title, file_name):
     plt.gca().spines['right'].set_visible(False)
     plt.show()
 
-    return plt.savefig(f'plots/{file_name}')
+    plt.savefig(f'plots/{file_name}')
 
 
-rynkowej2_plot(Path().source(), 'WSKAŹNIKI WARTOŚCI RYNKOWEJ', 'akcji_rynkowej.JPG')
-
+# rynkowej2_plot(Path().source()['rynkowej'], 'WSKAŹNIKI WARTOŚCI RYNKOWEJ', 'akcji_rynkowej.JPG')
 
 
 def rzis_plot(data, title, file_name):
-
-    xticks_rzis = data['rzis'].index[::4]
+    xticks_rzis = data.index[::4]
 
     plt.style.use('dark_background')
     plt.get_cmap('twilight')
@@ -278,9 +254,9 @@ def rzis_plot(data, title, file_name):
     plt.figure(figsize=(18, 8))
 
     plt.title(title, fontsize=20)
-    plt.plot(data['rzis']['Zysk ze sprzedaży'], color='r', linestyle='-',
+    plt.plot(data['Zysk ze sprzedaży'], color='r', linestyle='-',
              linewidth=3, label='Zysk ze sprzedaży')
-    plt.plot(data['rzis']['Zysk operacyjny (EBIT)'], color='C2', linestyle='-', linewidth=3, label='EBIT')
+    plt.plot(data['Zysk operacyjny (EBIT)'], color='C2', linestyle='-', linewidth=3, label='EBIT')
     plt.grid(axis='y', alpha=0.5)
 
     plt.xticks(xticks_rzis, fontsize=12)
@@ -289,14 +265,11 @@ def rzis_plot(data, title, file_name):
 
     plt.gca().spines['top'].set_visible(False)
     plt.gca().spines['right'].set_visible(False)
-    plt.show()
-    plt.savefig('plots/zyskownosci.JPG')
 
-    return plt.savefig(f'plots/{file_name}')
+    plt.savefig(f'plots/{file_name}')
 
 
-rzis_plot(Path().source(), 'WYNIKI SPRZEDAŻY', 'zyskownosci.JPG')
-
+# rzis_plot(Path().source()['rzis'], 'WYNIKI SPRZEDAŻY', 'zyskownosci.JPG')
 
 
 def porownanie_plot(data, title, file_name):
@@ -324,7 +297,7 @@ def porownanie_plot(data, title, file_name):
     ax1.tick_params(axis='y', labelsize=14, labelcolor='r')
     ax1.grid(alpha=0.5)
 
-    ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+    ax2 = ax1.twinx()
 
     ax2.plot(porownanie['Przychody ze sprzedaży'], color='C2')
     ax2.set_xticks(xticks_por)
@@ -335,18 +308,14 @@ def porownanie_plot(data, title, file_name):
     ax2.grid(alpha=0.0)
 
     fig.tight_layout()
-    plt.show()
 
-    return plt.savefig(f'plots/{file_name}')
+    plt.savefig(f'plots/{file_name}')
 
 
-porownanie_plot(Path().source(), 'REAKCJA KURSU AKCJI NA ZMIANY W PRZYCHODACH ZE SPRZEDAŻY', 'porownanie.JPG')
-
+# porownanie_plot(Path().source(), 'REAKCJA KURSU AKCJI NA ZMIANY W PRZYCHODACH ZE SPRZEDAŻY', 'porownanie.JPG')
 
 
 def kurs_plot(data, title, file_name):
-
-
     asset = data
     asset['Delta'] = asset['Close'].pct_change()
 
@@ -363,16 +332,14 @@ def kurs_plot(data, title, file_name):
 
     bottom_fig = plt.subplot2grid((5, 4), (4, 0), rowspan=2, colspan=4, sharex=up_fig)
     bottom_fig.bar(asset.index, asset['Volume'])
-    plt.show()
 
-    return plt.savefig(f'plots/{file_name}')
+    plt.savefig(f'plots/{file_name}')
 
 
-kurs_plot(data_preparation.Data.market_data_from_stooq(), 'KURS AKCJI', 'akcja_wolumen.JPG')
+# kurs_plot(data_preparation.Data.market_data_from_stooq(), 'KURS AKCJI', 'akcja_wolumen.JPG')
 
 
 def dist_plot(data, title, file_name):
-
     asset = data
     asset['Delta'] = asset['Close'].pct_change()
 
@@ -388,13 +355,11 @@ def dist_plot(data, title, file_name):
     ax1.tick_params(axis='x', labelsize=14)
     ax1.tick_params(axis='y', labelsize=14)
     plt.grid(alpha=0.5)
-    plt.savefig('plots/rozklad.JPG')
-    plt.show()
 
-    return plt.savefig(f'plots/{file_name}')
+    plt.savefig(f'plots/{file_name}')
 
 
-dist_plot(data_preparation.Data.market_data_from_stooq(), 'ROZKŁAD STÓP ZWROTU', 'rozklad.JPG')
+# dist_plot(data_preparation.Data.market_data_from_stooq(), 'ROZKŁAD STÓP ZWROTU', 'rozklad.JPG')
 
 
 def indicator_plot(data, title, label, file_name):
@@ -404,8 +369,7 @@ def indicator_plot(data, title, label, file_name):
     plt.figure(figsize=(18, 8))
 
     plt.title(title, fontsize=20)
-    plt.plot(data, color='r',
-             linestyle='-', linewidth=3, label=label)
+    plt.plot(data, color='r',linestyle='-', linewidth=3, label=label)
     plt.grid(axis='y', alpha=0.5)
 
     plt.xticks(fontsize=14)
@@ -414,26 +378,31 @@ def indicator_plot(data, title, label, file_name):
 
     plt.gca().spines['top'].set_visible(False)
     plt.gca().spines['right'].set_visible(False)
-    plt.show()
 
-    return plt.savefig(f'plots/{file_name}')
-
-
-indicator_plot(data_preparation.Data(tkinter_input.Execute.user_tkinter_input).financial_metrics_single()[0],
-               'VOLATILITY',
-               'Rolliing volatility', 'rolling_volatility.JPG')
+    plt.savefig(f'plots/{file_name}')
 
 
-indicator_plot(data_preparation.Data(tkinter_input.Execute.user_tkinter_input).financial_metrics_single()[2],
-               'SHARPE RATIO',
-               'Rolliing Sharpe Ratio', 'rolling_sharpe.JPG')
+# indicator_plot(data_preparation.Data(tkinter_input.Execute.user_tkinter_input).financial_metrics_single()[0],
+#                'VOLATILITY',
+#                'Rolliing volatility', 'rolling_volatility.JPG')
+#
+# indicator_plot(data_preparation.Data(tkinter_input.Execute.user_tkinter_input).financial_metrics_single()[2],
+#                'SHARPE RATIO',
+#                'Rolliing Sharpe Ratio', 'rolling_sharpe.JPG')
+#
+# indicator_plot(data_preparation.Data(tkinter_input.Execute.user_tkinter_input).financial_metrics_single()[3],
+#                'SORTINO RATIO',
+#                'Rolliing Sortino Ratio', 'rolling_sortino.JPG')
+#
+# indicator_plot(data_preparation.Data(tkinter_input.Execute.user_tkinter_input).financial_metrics_with_benchmark()[0],
+#                'MODIGLIANI RATIO',
+#                'Rolliing M2 Ratio', 'rolling_modigliani.JPG')
 
 
-indicator_plot(data_preparation.Data(tkinter_input.Execute.user_tkinter_input).financial_metrics_single()[3],
-               'SORTINO RATIO',
-               'Rolliing Sortino Ratio', 'rolling_sortino.JPG')
+def background(title, rgb: tuple, code: str):
+    img = Image.new('RGB', rgb, code)
+    img.save(f'plots/{title}')
 
 
-indicator_plot(data_preparation.Data(tkinter_input.Execute.user_tkinter_input).financial_metrics_with_benchmark()[0],
-               'MODIGLIANI RATIO',
-               'Rolliing M2 Ratio', 'rolling_modigliani.JPG')
+# background('grey_colored.png', (58, 58), "3a3a3a")
+# background('black_colored.png', (36, 36), "#242424")

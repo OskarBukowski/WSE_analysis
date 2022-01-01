@@ -2,33 +2,7 @@ from fpdf import FPDF
 from PIL import Image
 from data_preparation import Data
 from tkinter_input import Execute
-
-
-
-max_height = 297
-max_width = 210
-
-name_1 = 'akcja_wolumen.JPG'
-name_2 = 'akcji_rynkowej.JPG'
-name_3 = 'porownanie.JPG'
-name_4 = 'zyskownosci.JPG'
-name_5 = 'rynkowej.JPG'
-name_6 = 'rentownosci.JPG'
-name_7 = 'marza.JPG'
-name_8 = 'altman_2.JPG'
-name_9 = 'zadluzenia.JPG'
-name_10 = 'plynnosci.JPG'
-name_11 = 'rozklad.JPG'
-name_12 = 'rolling_volatility.JPG'
-name_13 = 'rolling_sharpe.JPG'
-name_14 = 'rolling_sortino.JPG'
-name_15 = 'rolling_modigliani.JPG'
-
-img = Image.new('RGB', (58, 58), "#3a3a3a")
-img.save('grey_colored.png')
-
-img = Image.new('RGB', (36, 36), "#242424")
-img.save('black_colored.png')
+import datetime
 
 
 def create_title(pdf):
@@ -39,7 +13,7 @@ def create_title(pdf):
     pdf.set_y(0)
     pdf.set_x(0)
     pdf.cell(max_width, 20, f'Report for company {ticker}', fill=True, align='C')
-    pdf.image('black_colored.png', 0, 287, max_width, 10)
+    pdf.image('plots/black_colored.png', 0, 287, max_width, 10)
 
 
 def create_report(filename='RAPORT.pdf'):
@@ -121,10 +95,10 @@ def create_report(filename='RAPORT.pdf'):
 
     pdf.set_font('helvetica', 'I', 14)
     pdf.set_y(230)
-    pdf.cell(80, 8, f'Historical Value at Risk : {round((data_preparation.Data().historicalVAR()), 4)}', ln=True, align='L')
+    pdf.cell(80, 8, f'Historical Value at Risk : {round((data_prep_const.historicalVAR()), 4)}', ln=True, align='L')
 
     pdf.set_y(245)
-    pdf.cell(80, 8, f'Expected Historical Shortfall : {round((data_preparation.Data().historicalCVAR()), 4)}', ln=True, align='L')
+    pdf.cell(80, 8, f'Expected Historical Shortfall : {round((data_prep_const.historicalCVAR()), 4)}', ln=True, align='L')
 
     pdf.set_y(230)
     pdf.set_x(80)
@@ -132,7 +106,7 @@ def create_report(filename='RAPORT.pdf'):
 
     pdf.set_y(245)
     pdf.set_x(80)
-    pdf.cell(160, 8, f'Calmar Ratio : {round((data_preparation.Data.calmar_ratio()), 4)}', ln=True, align='C')
+    pdf.cell(160, 8, f'Calmar Ratio : {round((data_prep_const.calmar_ratio()), 4)}', ln=True, align='C')
 
     pdf.image('plots/black_colored.png', 0, 287, max_width, 10)
 
@@ -154,16 +128,56 @@ def create_report(filename='RAPORT.pdf'):
 
     pdf.image('plots/rolling_modigliani.JPG', 10, 200, max_width - 20, 75)
 
-    pdf.image('black_colored.png', 0, 287, max_width, 10)
+    pdf.image('plots/black_colored.png', 0, 287, max_width, 10)
 
     pdf.output(filename)
 
 
 if __name__ == '__main__':
 
+    print("----", datetime.datetime.now())
+
     Execute.tkinter_open_window()
     ticker = Execute.user_tkinter_input
+
+    print("----", datetime.datetime.now())
+
     data_prep_const = Data(ticker)
+
+
+
+    max_height = 297
+    max_width = 210
+
+    print("--WARN--", datetime.datetime.now())
+
+    import vizualization
+
+    print("-WARN---", datetime.datetime.now())
+    print("-ATT---", datetime.datetime.now())
+
+    vizualization.plot_altman(vizualization.Altman().altman_calculation(), 'ALTMAN EM SCORE', 'altman_2.JPG')
+
+    print("-ATT---", datetime.datetime.now())
+
+    vizualization.zadluzenia_plot(vizualization.Path().source(), 'WSKAŹNIKI ZADŁUŻENIA', 'zadluzenia.JPG')
+    vizualization.plynnosci_plot(vizualization.Path().source(), 'WSKAŹNIK PŁYNNOŚCI BIEŻĄCEJ', 'plynnosci.JPG')
+    vizualization.rynkowej_plot(vizualization.Path().source(), 'WSKAŹNIKI WYCENY PRZEDSIĘBIORSTWA', 'rynkowej.JPG')
+    vizualization.rentownosci_plot(vizualization.Path().source(), 'WSKAŹNIKI RENTOWNOŚCI', 'rentownosci.JPG')
+    vizualization.marza_plot(vizualization.Path().source(), 'MARŻA ZYSKU ZA SPRZEDAŻY', 'marza.JPG')
+    vizualization.rynkowej2_plot(vizualization.Path().source(), 'WSKAŹNIKI WARTOŚCI RYNKOWEJ', 'akcji_rynkowej.JPG')
+    vizualization.rzis_plot(vizualization.Path().source(), 'WYNIKI SPRZEDAŻY', 'zyskownosci.JPG')
+    vizualization.porownanie_plot(vizualization.Path().source(), 'REAKCJA KURSU AKCJI NA ZMIANY W PRZYCHODACH ZE SPRZEDAŻY', 'porownanie.JPG')
+    vizualization.kurs_plot(data_prep_const.market_data_from_stooq(), 'KURS AKCJI', 'akcja_wolumen.JPG')
+    vizualization.dist_plot(data_prep_const.market_data_from_stooq(), 'ROZKŁAD STÓP ZWROTU', 'rozklad.JPG')
+    vizualization.indicator_plot(data_prep_const.financial_metrics_single()[0], 'VOLATILITY', 'Rolliing volatility', 'rolling_volatility.JPG')
+    vizualization.indicator_plot(data_prep_const.financial_metrics_single()[2], 'SHARPE RATIO', 'Rolliing Sharpe Ratio', 'rolling_sharpe.JPG')
+    vizualization.indicator_plot(data_prep_const.financial_metrics_single()[3], 'SORTINO RATIO', 'Rolliing Sortino Ratio', 'rolling_sortino.JPG')
+    vizualization.indicator_plot(data_prep_const.financial_metrics_with_benchmark()[0], 'MODIGLIANI RATIO', 'Rolliing M2 Ratio', 'rolling_modigliani.JPG')
+
+    vizualization.background('grey_colored.png', (58, 58), "3a3a3a")
+    vizualization.background('black_colored.png', (36, 36), "#242424")
+
 
 
     create_report()

@@ -1,6 +1,4 @@
 import pandas as pd
-import web_scrapping
-from tkinter_input import Execute
 import pandas_datareader.data as web
 import numpy as np
 
@@ -82,7 +80,7 @@ class Data:
 
     def historicalVAR(self):
         if isinstance(self.statistics()[0], pd.Series):
-            return np.percentile(self.returns, Data.ALPHA)
+            return np.percentile(self.financial_metrics_with_benchmark()[1], Data.ALPHA)
 
         elif isinstance(self.statistics()[0], pd.DataFrame):
             return self.financial_metrics_with_benchmark()[1].aggregate(self.historicalVAR, Data.ALPHA)
@@ -111,29 +109,29 @@ class Data:
 
 
 
-if __name__ == "__main__":
-
-    Execute.tkinter_open_window()
-
-    ticker = Execute.user_tkinter_input
-
-
-    st = Data(ticker)
-
-
-    print(st.market_data_from_stooq())
-    print("-"*60)
-    print(st.statistics())
-    print("-" * 60)
-    print(st.financial_metrics_single()[3].head(100))
-    print("-" * 60)
-    print(st.financial_metrics_with_benchmark())
-    print("-" * 60)
-    print(st.max_drawdown())
-    print("-" * 60)
-    print(st.historicalVAR())
-    print("-" * 60)
-    print(st.historicalCVAR())
+# if __name__ == "__main__":
+#
+#     Execute.tkinter_open_window()
+#
+#     ticker = Execute.user_tkinter_input
+#
+#
+#     st = Data(ticker)
+#
+#
+#     print(st.market_data_from_stooq())
+#     print("-"*60)
+#     print(st.statistics())
+#     print("-" * 60)
+#     print(st.financial_metrics_single()[3].head(100))
+#     print("-" * 60)
+#     print(st.financial_metrics_with_benchmark())
+#     print("-" * 60)
+#     print(st.max_drawdown())
+#     print("-" * 60)
+#     print(st.historicalVAR())
+#     print("-" * 60)
+#     print(st.historicalCVAR())
 
 
 
