@@ -1,7 +1,6 @@
 from tkinter import *
 from tkinter.ttk import *
 import time
-from PIL import ImageTk, Image
 
 
 class Execute:
@@ -60,54 +59,3 @@ class Execute:
                         ).pack(side='bottom')
 
         root.mainloop()
-
-
-
-
-
-#### comment with nice styling
-
-
-# def darkstyle(root):
-#     ''' Return a dark style to the window'''
-#
-#     style = Style(root)
-#     root.tk.call('source', 'azure dark/azure dark.tcl')
-#     style.theme_use('azure')
-#     style.configure("Accentbutton", foreground='white')
-#     style.configure("Togglebutton", foreground='white')
-#
-#     return style
-#
-#
-# def main_window():
-#     """ The window with the darkstyle """
-#     root = Tk()
-#     root.title("My App")
-#     root.resizable(False),
-#     img = PhotoImage(file=(Image.open("background.jpg")))
-#
-#     style = darkstyle(root)
-#
-#     lab = Label(
-#         root,
-#         text="Write here the stock name",
-#         compound="center",
-#         font="arial 50",
-#         image=img)
-#
-#     lab.pack(fill="both", expand=1)
-#
-#     button = Button(
-#         root,
-#         text="Confirm",
-#         style="Accentbutton",
-#         command=lambda: [print_text(), root.destroy()]
-#         )
-#
-#     button.place(relx=0.43, rely=0.7, width=100, height=30)
-#
-#     root.mainloop()
-#
-#
-# main_window()

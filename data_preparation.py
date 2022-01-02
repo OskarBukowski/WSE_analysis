@@ -58,7 +58,7 @@ class Data:
         benchmark_data = benchmark_data.drop(columns=['Open', 'High', 'Low'])
 
         log_bench_returns = np.log(benchmark_data.Close / benchmark_data.Close.shift(1)).fillna(method='backfill')
-        benchmark_vol = log_bench_returns.rolling(window=Data.SESSIONS).std() * np.sqrt(Data.SESSIONS)
+        benchmark_vol = log_bench_returns.rolling(window=14).std() * np.sqrt(Data.SESSIONS)
 
 
         self.m2_ratio = (self.financial_metrics_single()[2] * benchmark_vol / Data.SESSIONS + Data.RFR) * Data.SESSIONS
@@ -109,48 +109,3 @@ class Data:
 
 
 
-# if __name__ == "__main__":
-#
-#     Execute.tkinter_open_window()
-#
-#     ticker = Execute.user_tkinter_input
-#
-#
-#     st = Data(ticker)
-#
-#
-#     print(st.market_data_from_stooq())
-#     print("-"*60)
-#     print(st.statistics())
-#     print("-" * 60)
-#     print(st.financial_metrics_single()[3].head(100))
-#     print("-" * 60)
-#     print(st.financial_metrics_with_benchmark())
-#     print("-" * 60)
-#     print(st.max_drawdown())
-#     print("-" * 60)
-#     print(st.historicalVAR())
-#     print("-" * 60)
-#     print(st.historicalCVAR())
-
-
-
-
-
-
-
-
-
-
-
-#
-# drawdown = round((Data.max_drawdown(Data(tkinter_input.Execute.user_tkinter_input).financial_metrics_with_benchmark()[1]) * 100), 4)
-#
-# calmar = round((np.exp(Data(tkinter_input.Execute.user_tkinter_input).statistics()[0].mean() * 252) /
-#                 abs(Data.max_drawdown(Data.financial_metrics_with_benchmark()[1]))), 4)
-#
-# hist_var = round((Data(tkinter_input.Execute.user_tkinter_input).historicalVAR
-#                   (Data(tkinter_input.Execute.user_tkinter_input).statistics()[0], Data(tkinter_input.Execute.user_tkinter_input).ALPHA)), 4)
-#
-# hist_cvar = round((Data(tkinter_input.Execute.user_tkinter_input).historicalCVAR
-#                    (Data(tkinter_input.Execute.user_tkinter_input).statistics()[0], Data(tkinter_input.Execute.user_tkinter_input).ALPHA)), 4)

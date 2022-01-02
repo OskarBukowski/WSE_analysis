@@ -1,8 +1,8 @@
 from fpdf import FPDF
-from PIL import Image
 from data_preparation import Data
 from tkinter_input import Execute
-import datetime
+from wse_stocks_list_to_update import CheckInternalStockName
+from web_scrapping import ScrappingData
 
 
 def create_title(pdf):
@@ -135,39 +135,30 @@ def create_report(filename='RAPORT.pdf'):
 
 if __name__ == '__main__':
 
-    print("----", datetime.datetime.now())
+
 
     Execute.tkinter_open_window()
     ticker = Execute.user_tkinter_input
-
-    print("----", datetime.datetime.now())
-
+    tickers_database = CheckInternalStockName().internal_name_scrapping()
+    financial_dataframes_dict = ScrappingData(ticker, tickers_database).main()
     data_prep_const = Data(ticker)
-
-
 
     max_height = 297
     max_width = 210
 
-    print("--WARN--", datetime.datetime.now())
-
     import vizualization
 
-    print("-WARN---", datetime.datetime.now())
-    print("-ATT---", datetime.datetime.now())
+    viz_const = vizualization.Path(financial_dataframes_dict)
 
-    vizualization.plot_altman(vizualization.Altman().altman_calculation(), 'ALTMAN EM SCORE', 'altman_2.JPG')
-
-    print("-ATT---", datetime.datetime.now())
-
-    vizualization.zadluzenia_plot(vizualization.Path().source(), 'WSKAŹNIKI ZADŁUŻENIA', 'zadluzenia.JPG')
-    vizualization.plynnosci_plot(vizualization.Path().source(), 'WSKAŹNIK PŁYNNOŚCI BIEŻĄCEJ', 'plynnosci.JPG')
-    vizualization.rynkowej_plot(vizualization.Path().source(), 'WSKAŹNIKI WYCENY PRZEDSIĘBIORSTWA', 'rynkowej.JPG')
-    vizualization.rentownosci_plot(vizualization.Path().source(), 'WSKAŹNIKI RENTOWNOŚCI', 'rentownosci.JPG')
-    vizualization.marza_plot(vizualization.Path().source(), 'MARŻA ZYSKU ZA SPRZEDAŻY', 'marza.JPG')
-    vizualization.rynkowej2_plot(vizualization.Path().source(), 'WSKAŹNIKI WARTOŚCI RYNKOWEJ', 'akcji_rynkowej.JPG')
-    vizualization.rzis_plot(vizualization.Path().source(), 'WYNIKI SPRZEDAŻY', 'zyskownosci.JPG')
-    vizualization.porownanie_plot(vizualization.Path().source(), 'REAKCJA KURSU AKCJI NA ZMIANY W PRZYCHODACH ZE SPRZEDAŻY', 'porownanie.JPG')
+    vizualization.plot_altman(vizualization.Altman(financial_dataframes_dict).altman_calculation(), 'ALTMAN EM SCORE', 'altman_2.JPG')
+    vizualization.zadluzenia_plot(viz_const.source()['zadluzenia'], 'WSKAŹNIKI ZADŁUŻENIA', 'zadluzenia.JPG')
+    vizualization.plynnosci_plot(viz_const.source()['plynnosci'], 'WSKAŹNIK PŁYNNOŚCI BIEŻĄCEJ', 'plynnosci.JPG')
+    vizualization.rynkowej_plot(viz_const.source()['rynkowej'], 'WSKAŹNIKI WYCENY PRZEDSIĘBIORSTWA', 'rynkowej.JPG')
+    vizualization.rentownosci_plot(viz_const.source()['rentownosci'], 'WSKAŹNIKI RENTOWNOŚCI', 'rentownosci.JPG')
+    vizualization.marza_plot(viz_const.source()['rentownosci'], 'MARŻA ZYSKU ZA SPRZEDAŻY', 'marza.JPG')
+    vizualization.rynkowej2_plot(viz_const.source()['rynkowej'], 'WSKAŹNIKI WARTOŚCI RYNKOWEJ', 'akcji_rynkowej.JPG')
+    vizualization.rzis_plot(viz_const.source()['rzis'], 'WYNIKI SPRZEDAŻY', 'zyskownosci.JPG')
+    vizualization.porownanie_plot(viz_const.source(), 'REAKCJA KURSU AKCJI NA ZMIANY W PRZYCHODACH ZE SPRZEDAŻY', 'porownanie.JPG')
     vizualization.kurs_plot(data_prep_const.market_data_from_stooq(), 'KURS AKCJI', 'akcja_wolumen.JPG')
     vizualization.dist_plot(data_prep_const.market_data_from_stooq(), 'ROZKŁAD STÓP ZWROTU', 'rozklad.JPG')
     vizualization.indicator_plot(data_prep_const.financial_metrics_single()[0], 'VOLATILITY', 'Rolliing volatility', 'rolling_volatility.JPG')
@@ -175,9 +166,7 @@ if __name__ == '__main__':
     vizualization.indicator_plot(data_prep_const.financial_metrics_single()[3], 'SORTINO RATIO', 'Rolliing Sortino Ratio', 'rolling_sortino.JPG')
     vizualization.indicator_plot(data_prep_const.financial_metrics_with_benchmark()[0], 'MODIGLIANI RATIO', 'Rolliing M2 Ratio', 'rolling_modigliani.JPG')
 
-    vizualization.background('grey_colored.png', (58, 58), "3a3a3a")
+    vizualization.background('grey_colored.png', (58, 58), "#3A3A3A")
     vizualization.background('black_colored.png', (36, 36), "#242424")
-
-
 
     create_report()

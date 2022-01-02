@@ -2,20 +2,15 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from PIL import Image
-import data_preparation
-import web_scrapping
-import tkinter_input
 
 
 class Path:
-    def __init__(self):
+    def __init__(self, financial_dataframes_dict):
         self.fin_source = None
+        self.frame = financial_dataframes_dict
 
-    @staticmethod
-    def connection(fin_data):
-        frame = web_scrapping.ScrappingData(tkinter_input.Execute.user_tkinter_input).main()[fin_data]
-
-        return frame
+    def connection(self, fin_data):
+        return self.frame[fin_data]
 
     def source(self):
         fin_source = dict(
@@ -31,12 +26,14 @@ class Path:
         return fin_source
 
 
-class Altman:
-    def __init__(self):
+class Altman():
+
+    def __init__(self, financial_dataframes_dict):
         self.altman = pd.DataFrame()
+        self.financial_dataframes_dict = financial_dataframes_dict
 
     def altman_calculation(self):
-        altman_calc = Path().source()
+        altman_calc = Path(self.financial_dataframes_dict).source()
 
         self.altman['one'] = 6.65 * ((altman_calc['bilans']['Aktywa obrotowe'] -
                                       altman_calc['bilans']['Zobowiązania krótkoterminowe']) /
@@ -58,8 +55,10 @@ class Altman:
 
         self.altman = self.altman.fillna(method='backfill')
 
-        self.altman['em_score'] = self.altman['one'] + self.altman['two'] + self.altman['three'] + self.altman[
-            'four'] + 3.25
+        self.altman['em_score'] = self.altman['one'] + \
+                                  self.altman['two'] + \
+                                  self.altman['three'] + \
+                                  self.altman['four'] + 3.25
 
         return self.altman
 
@@ -76,6 +75,7 @@ def plot_altman(data, title, file_name):
     plt.grid(axis='x', alpha=0.5)
     plt.xticks(xticks_alt, fontsize=13)
     plt.yticks(fontsize=14)
+    plt.xticks(rotation=45)
 
     plt.gca().spines['top'].set_visible(False)
     plt.gca().spines['right'].set_visible(False)
@@ -83,7 +83,6 @@ def plot_altman(data, title, file_name):
     plt.savefig(f'plots/{file_name}')
 
 
-# plot_altman(Altman().altman_calculation(), 'ALTMAN EM SCORE', 'altman_2.JPG')
 
 
 def zadluzenia_plot(data, title, file_name):
@@ -101,6 +100,7 @@ def zadluzenia_plot(data, title, file_name):
              label='Zadłużenie ogólne')
     plt.grid(axis='y', alpha=0.5)
     plt.xticks(xticks_zad, fontsize=13)
+    plt.xticks(rotation=45)
     plt.yticks(yticks, fontsize=14)
     plt.legend(fontsize=14)
 
@@ -110,7 +110,7 @@ def zadluzenia_plot(data, title, file_name):
     plt.savefig(f"plots/{file_name}")
 
 
-# zadluzenia_plot(Path().source()['zadluzenia'], 'WSKAŹNIKI ZADŁUŻENIA', 'zadluzenia.JPG')
+
 
 
 def plynnosci_plot(data, title, file_name):
@@ -126,6 +126,7 @@ def plynnosci_plot(data, title, file_name):
 
     plt.grid(axis='y', alpha=0.5)
     plt.xticks(xticks_pln, fontsize=13)
+    plt.xticks(rotation=45)
     plt.yticks(fontsize=14)
 
     plt.gca().spines['top'].set_visible(False)
@@ -133,8 +134,7 @@ def plynnosci_plot(data, title, file_name):
 
     plt.savefig(f'plots/{file_name}')
 
-#
-# plynnosci_plot(Path().source()['plynnosci'], 'WSKAŹNIK PŁYNNOŚCI BIEŻĄCEJ', 'plynnosci.JPG')
+
 
 
 def rynkowej_plot(data, title, file_name):
@@ -153,6 +153,7 @@ def rynkowej_plot(data, title, file_name):
     plt.grid(axis='y', alpha=0.5)
 
     plt.xticks(xticks_ev, fontsize=12)
+    plt.xticks(rotation=45)
     plt.yticks(fontsize=14)
     plt.legend(fontsize=12)
 
@@ -161,8 +162,7 @@ def rynkowej_plot(data, title, file_name):
 
     plt.savefig(f'plots/{file_name}')
 
-#
-# rynkowej_plot(Path().source()['rynkowej'], 'WSKAŹNIKI WYCENY PRZEDSIĘBIORSTWA', 'rynkowej.JPG')
+
 
 
 def rentownosci_plot(data, title, file_name):
@@ -179,17 +179,16 @@ def rentownosci_plot(data, title, file_name):
     plt.grid(axis='y', alpha=0.5)
 
     plt.xticks(xticks_rent, fontsize=12)
+    plt.xticks(rotation=45)
     plt.yticks(fontsize=14)
     plt.legend(fontsize=14)
 
     plt.gca().spines['top'].set_visible(False)
     plt.gca().spines['right'].set_visible(False)
-    plt.show()
 
     plt.savefig(f'plots/{file_name}')
 
 
-# rentownosci_plot(Path().source()['rentownosci'], 'WSKAŹNIKI RENTOWNOŚCI', 'rentownosci.JPG')
 
 
 def marza_plot(data, title, file_name):
@@ -204,17 +203,16 @@ def marza_plot(data, title, file_name):
     plt.grid(axis='y', alpha=0.5)
 
     plt.xticks(xticks_rent, fontsize=12)
+    plt.xticks(rotation=45)
     plt.yticks(fontsize=14)
     plt.legend(fontsize=14)
 
     plt.gca().spines['top'].set_visible(False)
     plt.gca().spines['right'].set_visible(False)
-    plt.show()
 
     plt.savefig(f'plots/{file_name}')
 
 
-# marza_plot(Path().source()['rentownosci'], 'MARŻA ZYSKU ZA SPRZEDAŻY', 'marza.JPG')
 
 
 def rynkowej2_plot(data, title, file_name):
@@ -232,17 +230,16 @@ def rynkowej2_plot(data, title, file_name):
     plt.grid(axis='y', alpha=0.5)
 
     plt.xticks(xticks_ryn, fontsize=12)
+    plt.xticks(rotation=45)
     plt.yticks(fontsize=14)
     plt.legend(fontsize=14)
 
     plt.gca().spines['top'].set_visible(False)
     plt.gca().spines['right'].set_visible(False)
-    plt.show()
 
     plt.savefig(f'plots/{file_name}')
 
 
-# rynkowej2_plot(Path().source()['rynkowej'], 'WSKAŹNIKI WARTOŚCI RYNKOWEJ', 'akcji_rynkowej.JPG')
 
 
 def rzis_plot(data, title, file_name):
@@ -260,6 +257,7 @@ def rzis_plot(data, title, file_name):
     plt.grid(axis='y', alpha=0.5)
 
     plt.xticks(xticks_rzis, fontsize=12)
+    plt.xticks(rotation=45)
     plt.yticks(fontsize=14)
     plt.legend(fontsize=14)
 
@@ -269,7 +267,6 @@ def rzis_plot(data, title, file_name):
     plt.savefig(f'plots/{file_name}')
 
 
-# rzis_plot(Path().source()['rzis'], 'WYNIKI SPRZEDAŻY', 'zyskownosci.JPG')
 
 
 def porownanie_plot(data, title, file_name):
@@ -306,13 +303,13 @@ def porownanie_plot(data, title, file_name):
     ax2.tick_params(axis='x', labelsize=14)
     ax2.tick_params(axis='y', labelsize=14, labelcolor='C2')
     ax2.grid(alpha=0.0)
+    plt.xticks(rotation=45)
 
     fig.tight_layout()
 
     plt.savefig(f'plots/{file_name}')
 
 
-# porownanie_plot(Path().source(), 'REAKCJA KURSU AKCJI NA ZMIANY W PRZYCHODACH ZE SPRZEDAŻY', 'porownanie.JPG')
 
 
 def kurs_plot(data, title, file_name):
@@ -336,7 +333,6 @@ def kurs_plot(data, title, file_name):
     plt.savefig(f'plots/{file_name}')
 
 
-# kurs_plot(data_preparation.Data.market_data_from_stooq(), 'KURS AKCJI', 'akcja_wolumen.JPG')
 
 
 def dist_plot(data, title, file_name):
@@ -359,7 +355,6 @@ def dist_plot(data, title, file_name):
     plt.savefig(f'plots/{file_name}')
 
 
-# dist_plot(data_preparation.Data.market_data_from_stooq(), 'ROZKŁAD STÓP ZWROTU', 'rozklad.JPG')
 
 
 def indicator_plot(data, title, label, file_name):
@@ -373,6 +368,7 @@ def indicator_plot(data, title, label, file_name):
     plt.grid(axis='y', alpha=0.5)
 
     plt.xticks(fontsize=14)
+    plt.xticks(rotation=45)
     plt.yticks(fontsize=14)
     plt.legend(fontsize=14)
 
@@ -382,27 +378,8 @@ def indicator_plot(data, title, label, file_name):
     plt.savefig(f'plots/{file_name}')
 
 
-# indicator_plot(data_preparation.Data(tkinter_input.Execute.user_tkinter_input).financial_metrics_single()[0],
-#                'VOLATILITY',
-#                'Rolliing volatility', 'rolling_volatility.JPG')
-#
-# indicator_plot(data_preparation.Data(tkinter_input.Execute.user_tkinter_input).financial_metrics_single()[2],
-#                'SHARPE RATIO',
-#                'Rolliing Sharpe Ratio', 'rolling_sharpe.JPG')
-#
-# indicator_plot(data_preparation.Data(tkinter_input.Execute.user_tkinter_input).financial_metrics_single()[3],
-#                'SORTINO RATIO',
-#                'Rolliing Sortino Ratio', 'rolling_sortino.JPG')
-#
-# indicator_plot(data_preparation.Data(tkinter_input.Execute.user_tkinter_input).financial_metrics_with_benchmark()[0],
-#                'MODIGLIANI RATIO',
-#                'Rolliing M2 Ratio', 'rolling_modigliani.JPG')
 
 
 def background(title, rgb: tuple, code: str):
     img = Image.new('RGB', rgb, code)
     img.save(f'plots/{title}')
-
-
-# background('grey_colored.png', (58, 58), "3a3a3a")
-# background('black_colored.png', (36, 36), "#242424")

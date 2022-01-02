@@ -4,7 +4,6 @@ import re
 import time
 
 
-
 class CheckInternalStockName:
     URL = 'https://www.biznesradar.pl/spolki-raporty-finansowe-rachunek-zyskow-i-strat/akcje_gpw,Q,IncomeRevenues,0,1'
 
@@ -19,7 +18,6 @@ class CheckInternalStockName:
             return val
 
         return counter
-
 
 
     @staticmethod
@@ -45,7 +43,3 @@ class CheckInternalStockName:
                     biznesradar_internal_names[ticker] = url_stock_name
 
         return biznesradar_internal_names
-
-
-# if __name__ == '__main__':
-#     print(CheckInternalStockName().internal_name_scrapping())
