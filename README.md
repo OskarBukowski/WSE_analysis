@@ -1,7 +1,7 @@
-****Warsaw Stock Exchange analysis****
+****Warsaw Stock Exchange Analysis****
 
 Script takes 3 letter stock ticker input from the user and automatically downloads finanical data about given instrument.
-Then it calculates financial and market measures with statistics too and saves all data into PDF file with graphical elements
+Then it calculates financial and market measures with statistics too and saves all data into PDF file with graphical elements.
 
 
 
