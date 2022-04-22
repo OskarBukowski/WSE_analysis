@@ -1,13 +1,52 @@
-Warsaw Stock Exchange analysis
+****Warsaw Stock Exchange analysis****
 
-Script takes input from the user --> the 3 letter case insensitive stock ticker
+Script takes 3 letter stock ticker input from the user and automatically downloads finanical data about given instrument.
+Then it calculates financial and market measures with statistics too and saves all data into PDF file with graphical elements
 
 
 
 ![tkinter](https://user-images.githubusercontent.com/89335034/164591665-9e31b826-a6f3-429d-8b29-a342db0c92bc.png)
 
+**REPORT INCLUDES :**
 
-All plots and statistics base on financial data from Stooq API.
+**financial**
+
+-Historical Stock Price
+
+-Valuation Ratios
+
+-Profitability Indicator Ratios
+
+-Investment Valuation Ratios
+
+-Debt Ratios
+
+-Liquidity Measurement Ratios
+
+-Revenue Changes vs Stock Price Movements
+
+-Sales
+
+-Altman Emerging Markets Score
+
+
+**statistics + market indicators**
+
+-Volatility
+
+-Returns Distribution
+
+-Value at Risk
+
+-Expected Shortfall
+
+-Maximum Drawdown
+
+-Calmar Ratio
+
+-Sharpe/Sortino/Modigliani Ratios
+
+
 
 
 Example report :
